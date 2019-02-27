@@ -16,7 +16,7 @@ const Home = () => {
     <div>
       {loading && "loading"}
       {error && "something happend"}
-      {!loading && data && console.log("DATA!" + data.movies[0].title)}
+      {!loading && data && data.movies.map((movie) => <h1>{movie.title}</h1>)}
     </div>
   );
 };
