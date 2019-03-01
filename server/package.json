@@ -11,6 +11,8 @@
     "babel-preset-env": "^1.7.0"
   },
   "dependencies": {
-    "graphql-yoga": "^1.17.4"
+    "graphql": "^14.1.1",
+    "graphql-yoga": "^1.17.4",
+    "subscriptions-transport-ws": "^0.9.15"
   }
 }

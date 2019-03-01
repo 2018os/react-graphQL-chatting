@@ -1,111 +1,81 @@
-// import { GraphQLServer, PubSub } from "graphql-yoga";
+import { GraphQLServer, PubSub, withFilter } from "graphql-yoga";
+import { SubscriptionServer } from "subscriptions-transport-ws";
+import { createServer } from "http";
+import { execute, subscribe } from "graphql";
+import { graphqlExpress } from "apollo-server-express";
 
-// let movies = [
-//   {
-//     id: 0,
-//     title: "Iron Man1"
-//   },
-//   {
-//     id: 1,
-//     title: "Iron Man2"
-//   }
-// ];
-// const pubsub = new PubSub();
-// const server = new GraphQLServer({
-//   typeDefs: `
-//     type Hello {
-//       text: String!
-//       channel: String!
-//     }
-//     type Movie {
-//       id: Int!
-//       title: String!
-//     }
-//     type Query {
-//       movies: [Movie]!
-//     }
-//     type Mutation {
-//       addMovie(title: String!): String!
-//     }
-//     type Subscription {
-//       hello: Hello!
-//     }
-//   `,
-//   resolvers: {
-//     Query: {
-//       movies: () => movies
-//     },
-//     Mutation: {
-//       addMovie: (_, args) => {
-//         const id = movies.length;
-//         const newMovie = {
-//           id: id,
-//           title: args.title
-//         };
-//         movies.push(newMovie);
-//         return "YES";
-//       }
-//     },
-//     Subscription: {
-//       hello: {
-//         subscribe: (_, args, { pubsub }) => {
-//           const channel = "A";
-//           pubsub.publish(channel, { hello: { text: "HELLO", channel: channel } });
-//           console.log("AA");
-//           return pubsub.asyncIterator(channel);
-//         }
-//       }
-//     }
-//   },
-//   context: { pubsub }
-// });
-
-// server.start(() => console.log("Graphql Server Running"));
-
-const { GraphQLServer, PubSub } = require("graphql-yoga");
+const pubsub = new PubSub();
+const NEW_MOVIE = "NEW_MOVIE";
+let movies = [
+  {
+    id: 0,
+    title: "Iron Man1"
+  }
+];
 
 const typeDefs = `
-  type Query {
-    hello: String!
-  }
-
-  type Counter {
-    count: Int!
-    countStr: String
-  }
-
-  type Subscription {
-    counter: Counter!
-  }
+type Movie {
+  id: Int!
+  title: String!
+}
+type Query {
+  movies: [Movie]!
+}
+type Mutation {
+  addMovie(title: String!): String!
+}
+type Subscription {
+  newMovie: Movie
+}
 `;
-
 const resolvers = {
   Query: {
-    hello: () => `Hello`
+    movies: () => {
+      return movies;
+    }
   },
-  Counter: {
-    countStr: counter => `Current count: ${counter.count}`
+  Mutation: {
+    addMovie: (_, { title }, { pubsub }) => {
+      const id = movies.length;
+      const newMovie = {
+        id: id,
+        title: title
+      };
+      movies.push(newMovie);
+      pubsub.publish(NEW_MOVIE, {
+        newMovie: newMovie
+      });
+      return "YES";
+    }
   },
   Subscription: {
-    counter: {
-      subscribe: (parent, args, { pubsub }) => {
-        const channel = Math.random()
-          .toString(36)
-          .substring(2, 15); // random channel name
-        console.log(channel);
-        let count = 0;
-        setInterval(
-          () => pubsub.publish(channel, { counter: { count: count++ } }),
-          2000
-        );
-        // pubsub.publish(channel, { counter: { count: count++ } });
-        return pubsub.asyncIterator(channel);
-      }
+    newMovie: {
+      subscribe: (_, __, { pubsub }) => pubsub.asyncIterator(NEW_MOVIE)
     }
   }
 };
 
-const pubsub = new PubSub();
-const server = new GraphQLServer({ typeDefs, resolvers, context: { pubsub } });
+const server = new GraphQLServer({
+  typeDefs: typeDefs,
+  resolvers: resolvers,
+  context: { pubsub }
+});
 
-server.start(() => console.log("Server is running on localhost:4000"));
+// const ws = createServer(server);
+
+server.start(() => console.log("Graphql Server Running"));
+
+// server.use('/graphiql', graphqlExpress({
+//   endpointURL: '/graphql',
+//   SubscriptionEndpoint: `ws://localhost:4000/subscriptions`
+// }));
+
+// ws.listen(3001, () => console.log('listening 30001 port'));
+// new SubscriptionServer({
+//   execute,
+//   subscribe,
+//   typeDefs
+// }, {
+//   server: ws,
+//   path: '/subscriptions'
+// });
