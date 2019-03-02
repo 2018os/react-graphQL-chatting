@@ -1,9 +1,4 @@
-import { GraphQLServer, PubSub, withFilter } from "graphql-yoga";
-import { SubscriptionServer } from "subscriptions-transport-ws";
-import { createServer } from "http";
-import { execute, subscribe } from "graphql";
-import { graphqlExpress } from "apollo-server-express";
-
+import { GraphQLServer, PubSub } from "graphql-yoga";
 const pubsub = new PubSub();
 const NEW_MOVIE = "NEW_MOVIE";
 let movies = [
@@ -61,21 +56,4 @@ const server = new GraphQLServer({
   context: { pubsub }
 });
 
-// const ws = createServer(server);
-
 server.start(() => console.log("Graphql Server Running"));
-
-// server.use('/graphiql', graphqlExpress({
-//   endpointURL: '/graphql',
-//   SubscriptionEndpoint: `ws://localhost:4000/subscriptions`
-// }));
-
-// ws.listen(3001, () => console.log('listening 30001 port'));
-// new SubscriptionServer({
-//   execute,
-//   subscribe,
-//   typeDefs
-// }, {
-//   server: ws,
-//   path: '/subscriptions'
-// });
