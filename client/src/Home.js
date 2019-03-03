@@ -1,22 +1,24 @@
 import React from "react";
 import gql from "graphql-tag";
-import { Query } from 'react-apollo';
+import { Query } from "react-apollo";
 import { useQuery } from "react-apollo-hooks";
 
-const getMovies = gql`
+const getChatting = gql`
   query {
-    movies {
+    chatting {
       id
-      title
+      writer
+      description
     }
   }
 `;
 
-const newMovie = gql`
-  subscription{
-    newMovie{
+const newChat = gql`
+  subscription {
+    newChat {
       id
-      title
+      writer
+      description
     }
   }
 `;
@@ -24,26 +26,33 @@ const newMovie = gql`
 let unsubscribe = null;
 
 export default () => (
-  <Query query={getMovies}>
+  <Query query={getChatting}>
     {({ loading, data, subscribeToMore }) => {
       if (loading) {
         return null;
       }
-      console.log(unsubscribe);
       if (!unsubscribe) {
         unsubscribe = subscribeToMore({
-          document: newMovie,
+          document: newChat,
           updateQuery: (prev, { subscriptionData }) => {
             if (!subscriptionData.data) return prev;
-            const { newMovie } = subscriptionData.data;
+            const { newChat } = subscriptionData.data;
             return {
               ...prev,
-              movies: [...prev.movies, newMovie]
+              chatting: [...prev.chatting, newChat]
             };
           }
         });
       }
-      return <div>{data.movies.map(x => <h3 key={x.id}>{x.title}</h3>)}</div>;
+      return (
+        <div>
+          {data.chatting.map(x => (
+            <h3 key={x.id}>
+              {x.writer}: {x.description}
+            </h3>
+          ))}
+        </div>
+      );
     }}
   </Query>
 );

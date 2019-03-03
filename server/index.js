@@ -1,51 +1,48 @@
 import { GraphQLServer, PubSub } from "graphql-yoga";
 const pubsub = new PubSub();
-const NEW_MOVIE = "NEW_MOVIE";
-let movies = [
-  {
-    id: 0,
-    title: "Iron Man1"
-  }
-];
+const NEW_CHAT = "NEW_CHAT";
+let chattingLog = [];
 
 const typeDefs = `
-type Movie {
+type Chat {
   id: Int!
-  title: String!
+  writer: String!
+  description: String!
 }
 type Query {
-  movies: [Movie]!
+  chatting: [Chat]!
 }
 type Mutation {
-  addMovie(title: String!): String!
+  write(writer: String!, description: String!): String!
 }
 type Subscription {
-  newMovie: Movie
+  newChat: Chat
 }
 `;
 const resolvers = {
   Query: {
-    movies: () => {
-      return movies;
+    chatting: () => {
+      return chattingLog;
     }
   },
   Mutation: {
-    addMovie: (_, { title }, { pubsub }) => {
-      const id = movies.length;
-      const newMovie = {
-        id: id,
-        title: title
+    write: (_, { writer, description }, { pubsub }) => {
+      const id = chattingLog.length;
+      const newChat = {
+        id,
+        writer,
+        description
       };
-      movies.push(newMovie);
-      pubsub.publish(NEW_MOVIE, {
-        newMovie: newMovie
+      chattingLog.push(newChat);
+      pubsub.publish(NEW_CHAT, {
+        newChat
       });
       return "YES";
     }
   },
   Subscription: {
-    newMovie: {
-      subscribe: (_, __, { pubsub }) => pubsub.asyncIterator(NEW_MOVIE)
+    newChat: {
+      subscribe: (_, __, { pubsub }) => pubsub.asyncIterator(NEW_CHAT)
     }
   }
 };
