@@ -1,29 +1,36 @@
 const NEW_CHAT = "NEW_CHAT";
-
-let chattingLog = [
+const chattingLog = [
   {
     id: 0,
     writer: "admin",
-    description: "HELLO"
+    description: "HELLO",
+    roomName: "RoomA"
   }
 ];
 
 const resolvers = {
   Query: {
-    chatting: () => {
-      return chattingLog;
+    chatting: (_, { roomName }) => {
+      const roomChattingLog = [];
+      chattingLog.map(chat => {
+        if (chat.roomName === roomName || chat.writer === "admin") {
+          roomChattingLog.push(chat);
+        }
+      });
+      return roomChattingLog;
     }
   },
   Mutation: {
-    write: (_, { writer, description }, { pubsub }) => {
+    write: (_, { writer, description, roomName }, { pubsub }) => {
       const id = chattingLog.length;
       const newChat = {
         id,
         writer,
-        description
+        description,
+        roomName
       };
       chattingLog.push(newChat);
-      pubsub.publish(NEW_CHAT, {
+      pubsub.publish(roomName, {
         newChat
       });
       return "YES";
@@ -31,7 +38,7 @@ const resolvers = {
   },
   Subscription: {
     newChat: {
-      subscribe: (_, __, { pubsub }) => pubsub.asyncIterator(NEW_CHAT)
+      subscribe: (_, { roomName }, { pubsub }) => pubsub.asyncIterator(roomName)
     }
   }
 };

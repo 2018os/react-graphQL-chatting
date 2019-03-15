@@ -11,8 +11,10 @@
     "babel-preset-env": "^1.7.0"
   },
   "dependencies": {
+    "express-graphql": "^0.7.1",
     "graphql": "^14.1.1",
     "graphql-yoga": "^1.17.4",
+    "socket.io": "^2.2.0",
     "subscriptions-transport-ws": "^0.9.15"
   }
 }
