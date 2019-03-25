@@ -1,10 +1,20 @@
-const NEW_CHAT = "NEW_CHAT";
 const chattingLog = [
   {
     id: 0,
     writer: "admin",
     description: "HELLO",
+  },
+  {
+    id: 1,
+    writer: "notice",
+    description: "this is RoomA",
     roomName: "RoomA"
+  },
+  {
+    id: 2,
+    writer: "notice",
+    description: "this is RoomB",
+    roomName: "RoomB"
   }
 ];
 

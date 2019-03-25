@@ -2,7 +2,7 @@ type Chat {
   id: Int!
   writer: String!
   description: String!
-  roomName: String!
+  roomName: String
 }
 type Query {
   chatting(roomName: String!): [Chat]!
