@@ -38,7 +38,6 @@ const Chatting =  () => {
             return null;
           }
           if (!unsubscribe) {
-            console.log(unsubscribe);
             unsubscribe = subscribeToMore({
               document: newChat,
               variables: { roomName },

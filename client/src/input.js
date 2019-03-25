@@ -12,8 +12,8 @@ const Input = () => {
   const [writer, setWriter] = useState("");
   useEffect(() => {
     // const socket = io(`http://localhost:4000`);
-    // const writer = prompt('Name');
-    const writer = "AA";
+    const writer = prompt('Name');
+    // const writer = "AA";
     setWriter(writer);
   }, []);
   const [description, setDescription] = useState("");
