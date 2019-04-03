@@ -2,7 +2,7 @@ const chattingLog = [
   {
     id: 0,
     writer: "admin",
-    description: "HELLO",
+    description: "HELLO"
   },
   {
     id: 1,
