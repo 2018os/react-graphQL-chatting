@@ -1,15 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Chatting from "./Chatting";
 import Input from "./input";
 
 const Home = () => {
-  const [room, setRoom] = useState("roomA");
-  console.log(room);
+  const [writer, setWriter] = useState("");
+  useEffect(() => {
+    const writer = prompt("Name");
+    setWriter(writer);
+  }, []);
+  const [roomName, setRoom] = useState("RoomA");
   return (
     <div>
-      {/* <RoomInput /> */}
-      <Chatting room={room} setRoom={setRoom} />
-      <Input room={room} setRoom={setRoom} />
+      <Chatting roomName={roomName} setRoom={setRoom} />
+      <Input roomName={roomName} writer={writer} />
     </div>
   );
 };

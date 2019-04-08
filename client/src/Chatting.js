@@ -1,13 +1,12 @@
-import React, { useState, Fragment } from 'react';
+import React, { Fragment } from "react";
 
 import gql from "graphql-tag";
 import { Query } from "react-apollo";
-// import { useQuery } from "react-apollo-hooks";
 
 const getChatting = gql`
   query chatting($roomName: String!) {
     chatting(roomName: $roomName) {
-      id
+      _id
       writer
       description
     }
@@ -15,9 +14,9 @@ const getChatting = gql`
 `;
 
 const newChat = gql`
-  subscription newChat($roomName: String!) {
-    newChat(roomName: $roomName) {
-      id
+  subscription {
+    newChat {
+      _id
       writer
       description
     }
@@ -26,13 +25,13 @@ const newChat = gql`
 
 let unsubscribe = null; //publish 했을때
 
-const Chatting =  () => {
-  const [roomName, setRoom] = useState("RoomA");
+const Chatting = props => {
+  const { roomName, setRoom } = props;
   return (
     <Fragment>
       <button onClick={() => setRoom("RoomA")}>RoomA</button>
       <button onClick={() => setRoom("RoomB")}>RoomB</button>
-      <Query query={getChatting} variables={{roomName}}>
+      <Query query={getChatting} variables={{ roomName }}>
         {({ loading, data, subscribeToMore }) => {
           if (loading) {
             return null;
@@ -40,7 +39,6 @@ const Chatting =  () => {
           if (!unsubscribe) {
             unsubscribe = subscribeToMore({
               document: newChat,
-              variables: { roomName },
               updateQuery: (prev, { subscriptionData }) => {
                 if (!subscriptionData.data) return prev;
                 const { newChat } = subscriptionData.data;
@@ -54,7 +52,7 @@ const Chatting =  () => {
           return (
             <div>
               {data.chatting.map(x => (
-                <h3 key={x.id}>
+                <h3 key={x._id}>
                   {x.writer}: {x.description}
                 </h3>
               ))}
@@ -63,27 +61,7 @@ const Chatting =  () => {
         }}
       </Query>
     </Fragment>
-  )
+  );
 };
 
 export default Chatting;
-
-// const Home = () => {
-//   const { data, error, loading, subscribeToMore } = useQuery(gql`
-//     query {
-//       movies {
-//         id
-//         title
-//       }
-//     }
-//   `);
-//   return (
-//     <div>
-//       {loading && "loading"}
-//       {error && "something happend"}
-//       {!loading && data && data.movies.map((movie) => <h1 key={movie.id}>{movie.title}</h1>)}
-//     </div>
-//   );
-// };
-
-// export default Home;
