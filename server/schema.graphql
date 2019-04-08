@@ -1,15 +1,15 @@
 type Chat {
-  id: Int!
+  _id: String!
   writer: String!
   description: String!
   roomName: String
 }
 type Query {
-  chatting(roomName: String!): [Chat]!
+  chatting(roomName: String): [Chat]!
 }
 type Mutation {
   write(writer: String!, description: String!, roomName: String!): String!
 }
 type Subscription {
-  newChat(roomName: String!): Chat
+  newChat: Chat
 }

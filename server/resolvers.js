@@ -1,54 +1,36 @@
-const chattingLog = [
-  {
-    id: 0,
-    writer: "admin",
-    description: "HELLO"
-  },
-  {
-    id: 1,
-    writer: "notice",
-    description: "this is RoomA",
-    roomName: "RoomA"
-  },
-  {
-    id: 2,
-    writer: "notice",
-    description: "this is RoomB",
-    roomName: "RoomB"
-  }
-];
-
 const resolvers = {
   Query: {
-    chatting: (_, { roomName }) => {
-      const roomChattingLog = [];
-      chattingLog.map(chat => {
-        if (chat.roomName === roomName || chat.writer === "admin") {
-          roomChattingLog.push(chat);
-        }
+    chatting: async (_, { roomName }, { Blog }) => {
+      const chattingLog = [];
+      await Blog.find({ roomName }).then(result => {
+        result.forEach(i => {
+          chattingLog.push(i);
+        });
       });
-      return roomChattingLog;
+      return chattingLog;
     }
   },
   Mutation: {
-    write: (_, { writer, description, roomName }, { pubsub }) => {
-      const id = chattingLog.length;
+    write: async (_, { writer, description, roomName }, { pubsub, Blog }) => {
       const newChat = {
-        id,
         writer,
         description,
         roomName
       };
-      chattingLog.push(newChat);
-      pubsub.publish(roomName, {
-        newChat
+      await Blog.create(newChat, (err, blog) => {
+        newChat._id = blog._id; //newChat 객체에 DB _id 추가
+        pubsub.publish(roomName, {
+          newChat
+        });
       });
       return "YES";
     }
   },
   Subscription: {
     newChat: {
-      subscribe: (_, { roomName }, { pubsub }) => pubsub.asyncIterator(roomName)
+      subscribe: (_, __, { pubsub }) => {
+        return pubsub.asyncIterator(["RoomA", "RoomB"]);
+      }
     }
   }
 };
